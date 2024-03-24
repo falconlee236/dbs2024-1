@@ -1,6 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Map;
 
 import static java.lang.System.getenv;
@@ -14,7 +12,19 @@ public class MyDBSystem {
         String url = String.format("jdbc:mysql://%s:3306/test", dbHost);
 
         try (Connection connection = DriverManager.getConnection(url, dbUser, dbPwd)){
-            System.out.println(connection);
+            PreparedStatement pstmt = connection.prepareStatement(
+                    "insert into relation values (?, ?)"
+            );
+            pstmt.setString(1, "clothes");
+            pstmt.setInt(2, 4);
+            pstmt.execute();
+
+            Statement stmt = connection.createStatement();
+            ResultSet res = stmt.executeQuery("select * from relation");
+            while (res.next()){
+                System.out.printf("%s %d\n", res.getString(1), res.getInt(2));
+            }
+
         } catch (SQLException e){
             e.printStackTrace();
         }
