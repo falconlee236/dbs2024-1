@@ -1,3 +1,5 @@
+import com.mysql.cj.protocol.Resultset;
+
 import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.Map;
@@ -9,6 +11,7 @@ public class JdbcConnection {
     final private String _dbPwd;
     final private String _url;
     private Connection _connection;
+    private String[] _tableNameArr;
 
     JdbcConnection(){
         Map<String, String> env = getenv();
@@ -18,30 +21,27 @@ public class JdbcConnection {
         _url = String.format("jdbc:mysql://%s:3306/test", dbHost);
     }
 
-    public boolean getConnection(){
+    public boolean getJDBCConnection(){
         try {
             _connection = DriverManager.getConnection(_url, _dbUser, _dbPwd);
-
-            Statement stmt = _connection.createStatement();
-            ResultSet res = stmt.executeQuery("select * from relation");
-            while (res.next()){
-                System.out.printf("%s %d\n", res.getString(1), res.getInt(2));
-            }
-            return true;
+            _tableNameArr = this.storeRelationName();
+            return (_tableNameArr != null);
         } catch (SQLException e){
             e.printStackTrace();
             return false;
         }
     }
 
-    public boolean insertRelation(String relationName, int numAttribute){
+    public boolean insertJDBCRelation(String relationName, int numAttribute){
         try{
             PreparedStatement stmt = _connection.prepareStatement(
                     "insert into relation values (?, ?)"
             );
             stmt.setString(1, relationName);
             stmt.setInt(2, numAttribute);
-            return stmt.execute();
+            stmt.execute();
+            stmt.close();
+            return true;
         } catch (SQLException e){
             e.printStackTrace();
             if (e.getClass().getCanonicalName()
@@ -52,7 +52,25 @@ public class JdbcConnection {
         }
     }
 
-    public boolean insertAttribue(String relationName, String attributeName, int length){
+    private String[] storeRelationName(){
+        try{
+            String[] arr;
+            ResultSet rst;
+            Statement stmt = _connection.createStatement();
+            rst = stmt.executeQuery("select * from relation");
+            stmt.close();
+
+            arr = new String[rst.getRow()];
+            for (int i = 0; rst.next(); i++){
+                arr[i] = rst.getString(1);
+            }
+            return arr;
+        } catch (SQLException e){
+            return null;
+        }
+    }
+
+    public boolean insertJDBCAttribute(String relationName, String attributeName, int length){
         try{
             PreparedStatement stmt = _connection.prepareStatement(
                     "insert into attribute values (?, ?, ?)"
@@ -60,7 +78,9 @@ public class JdbcConnection {
             stmt.setString(1, relationName);
             stmt.setString(2, attributeName);
             stmt.setInt(3, length);
-            return stmt.execute();
+            stmt.execute();
+            stmt.close();
+            return true;
         } catch (SQLException e){
             e.printStackTrace();
             if (e.getClass().getCanonicalName()
