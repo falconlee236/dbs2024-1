@@ -1,7 +1,5 @@
-import com.mysql.cj.protocol.Resultset;
-
-import javax.xml.transform.Result;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static java.lang.System.getenv;
@@ -11,7 +9,7 @@ public class JdbcConnection {
     final private String _dbPwd;
     final private String _url;
     private Connection _connection;
-    private String[] _tableNameArr;
+    private final ArrayList<String> _tableNameArr;
 
     JdbcConnection(){
         Map<String, String> env = getenv();
@@ -19,13 +17,14 @@ public class JdbcConnection {
         _dbUser = env.get("DB_USER");
         _dbPwd = env.get("DB_PWD");
         _url = String.format("jdbc:mysql://%s:3306/test", dbHost);
+        _tableNameArr = new ArrayList<>(10);
     }
 
     public boolean getJDBCConnection(){
         try {
             _connection = DriverManager.getConnection(_url, _dbUser, _dbPwd);
-            _tableNameArr = this.storeRelationName();
-            return (_tableNameArr != null);
+            this.storeRelationName();
+            return true;
         } catch (SQLException e){
             e.printStackTrace();
             return false;
@@ -52,21 +51,18 @@ public class JdbcConnection {
         }
     }
 
-    private String[] storeRelationName(){
+    private void storeRelationName(){
         try{
-            String[] arr;
             ResultSet rst;
             Statement stmt = _connection.createStatement();
             rst = stmt.executeQuery("select * from relation");
             stmt.close();
 
-            arr = new String[rst.getRow()];
             for (int i = 0; rst.next(); i++){
-                arr[i] = rst.getString(1);
+                _tableNameArr.add(rst.getString(1));
             }
-            return arr;
         } catch (SQLException e){
-            return null;
+            e.printStackTrace();
         }
     }
 
@@ -89,5 +85,9 @@ public class JdbcConnection {
             }
             return false;
         }
+    }
+
+    public boolean checkDuplicate(String relationName){
+        return _tableNameArr.contains(relationName);
     }
 }

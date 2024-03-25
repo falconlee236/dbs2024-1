@@ -8,6 +8,7 @@ public class MyDBSystem {
     public static void main(String[] argv)  {
         System.out.println("My DB System: 2024-1 database system");
         MySystemUI systemUI = new MySystemUI();
+        JdbcConnection myConn =  new JdbcConnection();
         while (true){
             systemUI.printMenu();
             Scanner sc = new Scanner(System.in);
