@@ -58,11 +58,14 @@ public class JdbcConnection {
             ResultSet rst;
             Statement stmt = _connection.createStatement();
             rst = stmt.executeQuery("select * from relation");
-            stmt.close();
 
             for (int i = 0; rst.next(); i++){
                 _tableNameArr.add(rst.getString(1));
             }
+            for (int i = 0; i < _tableNameArr.size(); i++){
+                System.out.println(_tableNameArr.get(i));
+            }
+            stmt.close();
         } catch (SQLException e){
             e.printStackTrace();
         }

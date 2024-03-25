@@ -13,6 +13,7 @@ public class MySystemUI {
     }
 
     public void createDB(){
-
+        JdbcConnection myConn = new JdbcConnection();
+        myConn.getJDBCConnection();
     }
 }
