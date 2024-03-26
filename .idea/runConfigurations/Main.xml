@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="DB_USER" value="root" />
+      <env name="DB_PWD" value="dltkddbs3157" />
+      <env name="DB_HOST" value="localhost" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="caudbs2024.Main" />
+    <module name="dbs2024-1.main" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="caudbs2024.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
