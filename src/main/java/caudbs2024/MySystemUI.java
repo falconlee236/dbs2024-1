@@ -1,5 +1,7 @@
 package caudbs2024;
 
+import java.util.Scanner;
+
 public class MySystemUI {
     public void printMenu(){
         System.out.println("<Menu>");
@@ -12,8 +14,30 @@ public class MySystemUI {
         System.out.print("Select the number: ");
     }
 
-    public void createDB(){
-        JdbcConnection myConn = new JdbcConnection();
-        myConn.getJDBCConnection();
+    public void createDB(JdbcConnection conn){
+        Scanner sc = new Scanner(System.in);
+        String relationName;
+        int attributeNum;
+
+        System.out.println("<Create table>");
+        System.out.print("name: ");
+        relationName = sc.nextLine();
+        System.out.print("attribute number: ");
+        attributeNum = Integer.parseInt(sc.nextLine());
+
+        if (relationName.length() > 20){
+            System.out.println("max relation name length is 20");
+            return;
+        } else if (conn.checkDuplicate(relationName)){
+            System.out.println("duplicate relation Name");
+            return;
+        } else if (attributeNum < 0 || attributeNum > 4){
+            System.out.println("max attribute number is 4");
+            return;
+        }
+
+        for(int i = 0; i < 10; i++){
+            String id = Integer.toString(1000 + i);
+        }
     }
 }
