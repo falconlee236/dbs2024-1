@@ -42,6 +42,7 @@ public class JdbcConnection {
             stmt.setInt(2, numAttribute);
             stmt.execute();
             stmt.close();
+            System.out.println("Insert successful!");
             return true;
         } catch (SQLException e){
             e.printStackTrace();
@@ -81,6 +82,7 @@ public class JdbcConnection {
             stmt.setInt(3, length);
             stmt.execute();
             stmt.close();
+            System.out.println("Insert successful!");
             return true;
         } catch (SQLException e){
             e.printStackTrace();

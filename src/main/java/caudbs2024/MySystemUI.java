@@ -36,8 +36,24 @@ public class MySystemUI {
             return;
         }
 
-        for(int i = 0; i < 10; i++){
-            String id = Integer.toString(1000 + i);
+        if (!conn.insertJDBCRelation(relationName, attributeNum)){
+            System.out.println("connection failed");
+            return;
         }
+
+        for(int i = 0;i < attributeNum; i++){
+            String idxStr = Integer.toString(i + 1);
+            System.out.print(idxStr + "- attribute name: ");
+            String attributeName = sc.nextLine();
+            System.out.print(idxStr + "- attribute length");
+            int length = Integer.parseInt(sc.nextLine());
+            if (!conn.insertJDBCAttribute(relationName, attributeName, length)){
+                System.out.println("connection failed");
+                return;
+            }
+        }
+//        for(int i = 0; i < 10; i++){
+//            String id = Integer.toString(1000 + i);
+//        }
     }
 }
