@@ -63,8 +63,9 @@ public class MySystemUI {
 
     public void createDB(JdbcConnection conn){
         System.out.println("<Create table>");
-        String relationName = setMetaData(conn);
-        Attribute[] attributeArr = conn.getJDBCAttribute(relationName);
+//        String relationName = setMetaData(conn);
+//        Attribute[] attributeArr = conn.getJDBCAttribute(relationName);
+        Attribute[] attributeArr = conn.getJDBCAttribute("clothes");
         if (attributeArr == null){
             System.err.println("duplicate primary keys");
             System.exit(1);
