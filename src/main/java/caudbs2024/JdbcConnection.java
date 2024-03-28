@@ -63,9 +63,6 @@ public class JdbcConnection {
             for (int i = 0; rst.next(); i++){
                 _tableNameArr.add(rst.getString(1));
             }
-            for (String s : _tableNameArr) {
-                System.out.println(s);
-            }
             stmt.close();
         } catch (SQLException e){
             e.printStackTrace();

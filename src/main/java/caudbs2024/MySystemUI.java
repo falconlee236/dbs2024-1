@@ -36,24 +36,29 @@ public class MySystemUI {
             return;
         }
 
-        if (!conn.insertJDBCRelation(relationName, attributeNum)){
-            System.out.println("connection failed");
-            return;
-        }
-
-        for(int i = 0;i < attributeNum; i++){
-            String idxStr = Integer.toString(i + 1);
-            System.out.print(idxStr + "- attribute name: ");
-            String attributeName = sc.nextLine();
-            System.out.print(idxStr + "- attribute length");
-            int length = Integer.parseInt(sc.nextLine());
-            if (!conn.insertJDBCAttribute(relationName, attributeName, length)){
+        try{
+            String[] attributeNameArr = new String[attributeNum];
+            int[] attributeLengthArr = new int[attributeNum];
+            //도중에 터지면 relation만 생기는 문제 해결
+            for(int i = 0; i < attributeNum; i++){
+                String idxStr = Integer.toString(i + 1);
+                System.out.print(idxStr + "- attribute name: ");
+                attributeNameArr[i] = sc.nextLine();
+                System.out.print(idxStr + "- attribute length");
+                attributeLengthArr[i] = Integer.parseInt(sc.nextLine());
+            }
+            if (conn.insertJDBCRelation(relationName, attributeNum)){
+                for(int i = 0; i < attributeNum; i++){
+                    conn.insertJDBCAttribute(
+                            relationName, attributeNameArr[i], attributeLengthArr[i]);
+                }
+            } else {
                 System.out.println("connection failed");
                 return;
             }
+        } catch (NumberFormatException e){
+            System.out.println("please input Integer");
         }
-//        for(int i = 0; i < 10; i++){
-//            String id = Integer.toString(1000 + i);
-//        }
+
     }
 }
