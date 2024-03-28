@@ -38,7 +38,7 @@ public class JdbcConnection {
     private Relation getJDBCRelation(String relationName){
         try{
             PreparedStatement stmt = _connection.prepareStatement(
-                    "select * from relation where relation_name = (?)"
+                    "select * from relation where relation_name = ?"
             );
             stmt.setString(1, relationName);
             ResultSet rst = stmt.executeQuery();
@@ -66,7 +66,7 @@ public class JdbcConnection {
             e.printStackTrace();
             if (e.getClass().getCanonicalName()
                     .equals("java.sql.SQLIntegrityConstraintViolationException")){
-                System.out.println("duplicate primary keys");
+                System.err.println("duplicate primary keys");
             }
             return false;
         }
@@ -90,14 +90,16 @@ public class JdbcConnection {
     public Attribute[] getJDBCAttribute(String relationName){
         try{
             Relation table = getJDBCRelation(relationName);
+            if (table == null){
+                return null;
+            }
             PreparedStatement stmt = _connection.prepareStatement(
-                    "select * from attribute where relation_name = (?)"
+                    "select * from attribute where relation_name = ?"
             );
             stmt.setString(1, relationName);
             ResultSet rst = stmt.executeQuery();
-            rst.next();
             Attribute[] attributeArr = new Attribute[table.attribute_num];
-            for (int i = 0; i < table.attribute_num; i++){
+            for (int i = 0; rst.next(); i++){
                 attributeArr[i] = new Attribute(
                         rst.getString(1),
                         rst.getString(2),
@@ -126,7 +128,7 @@ public class JdbcConnection {
             e.printStackTrace();
             if (e.getClass().getCanonicalName()
                     .equals("java.sql.SQLIntegrityConstraintViolationException")){
-                System.out.println("duplicate primary keys");
+                System.err.println("duplicate primary keys");
             }
         }
     }

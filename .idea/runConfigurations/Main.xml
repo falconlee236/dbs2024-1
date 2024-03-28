@@ -7,6 +7,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="caudbs2024.Main" />
     <module name="dbs2024-1.main" />
+    <option name="PROGRAM_PARAMETERS" value="--stacktrace" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="caudbs2024.*" />

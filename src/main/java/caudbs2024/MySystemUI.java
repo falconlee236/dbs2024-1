@@ -14,7 +14,7 @@ public class MySystemUI {
         System.out.print("Select the number: ");
     }
 
-    private void setMetaData(JdbcConnection conn){
+    private String setMetaData(JdbcConnection conn){
         Scanner sc = new Scanner(System.in);
         String relationName;
         int attributeNum;
@@ -24,14 +24,14 @@ public class MySystemUI {
         attributeNum = Integer.parseInt(sc.nextLine());
 
         if (relationName.length() > 20){
-            System.out.println("max relation name length is 20");
-            return;
+            System.err.println("max relation name length is 20");
+            return null;
         } else if (conn.checkDuplicate(relationName)){
-            System.out.println("duplicate relation Name");
-            return;
+            System.err.println("duplicate relation Name");
+            return null;
         } else if (attributeNum < 0 || attributeNum > 4){
-            System.out.println("max attribute number is 4");
-            return;
+            System.err.println("max attribute number is 4");
+            return null;
         }
 
         try{
@@ -50,17 +50,30 @@ public class MySystemUI {
                     conn.insertJDBCAttribute(
                             relationName, attributeNameArr[i], attributeLengthArr[i]);
                 }
+                return relationName;
             } else {
-                System.out.println("connection failed");
-                return;
+                System.err.println("connection failed");
+                return null;
             }
         } catch (NumberFormatException e){
-            System.out.println("please input Integer");
+            System.err.println("please input Integer");
+            return null;
         }
     }
 
     public void createDB(JdbcConnection conn){
         System.out.println("<Create table>");
-        setMetaData(conn);
+        String relationName = setMetaData(conn);
+        Attribute[] attributeArr = conn.getJDBCAttribute(relationName);
+        if (attributeArr == null){
+            System.err.println("duplicate primary keys");
+            System.exit(1);
+        }
+        for(Attribute x : attributeArr){
+            System.out.println(x.relation_name);
+            System.out.println(x.attribute_name);
+            System.out.println(x.length);
+            System.out.println("----");
+        }
     }
 }
