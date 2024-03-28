@@ -14,12 +14,10 @@ public class MySystemUI {
         System.out.print("Select the number: ");
     }
 
-    public void createDB(JdbcConnection conn){
+    private void setMetaData(JdbcConnection conn){
         Scanner sc = new Scanner(System.in);
         String relationName;
         int attributeNum;
-
-        System.out.println("<Create table>");
         System.out.print("name: ");
         relationName = sc.nextLine();
         System.out.print("attribute number: ");
@@ -59,6 +57,10 @@ public class MySystemUI {
         } catch (NumberFormatException e){
             System.out.println("please input Integer");
         }
+    }
 
+    public void createDB(JdbcConnection conn){
+        System.out.println("<Create table>");
+        setMetaData(conn);
     }
 }

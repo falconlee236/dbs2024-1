@@ -1,5 +1,7 @@
 package caudbs2024;
 
+import com.mysql.cj.protocol.Resultset;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,6 +32,22 @@ public class JdbcConnection {
         } catch (SQLException e){
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private Relation getJDBCRelation(String relationName){
+        try{
+            PreparedStatement stmt = _connection.prepareStatement(
+                    "select * from relation where relation_name = (?)"
+            );
+            stmt.setString(1, relationName);
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            return new Relation(
+                    rst.getString(1), rst.getInt(2));
+        } catch (SQLException e){
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -69,7 +87,31 @@ public class JdbcConnection {
         }
     }
 
-    public boolean insertJDBCAttribute(String relationName, String attributeName, int length){
+    public Attribute[] getJDBCAttribute(String relationName){
+        try{
+            Relation table = getJDBCRelation(relationName);
+            PreparedStatement stmt = _connection.prepareStatement(
+                    "select * from attribute where relation_name = (?)"
+            );
+            stmt.setString(1, relationName);
+            ResultSet rst = stmt.executeQuery();
+            rst.next();
+            Attribute[] attributeArr = new Attribute[table.attribute_num];
+            for (int i = 0; i < table.attribute_num; i++){
+                attributeArr[i] = new Attribute(
+                        rst.getString(1),
+                        rst.getString(2),
+                        rst.getInt(3)
+                );
+            }
+            return attributeArr;
+        } catch (SQLException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void insertJDBCAttribute(String relationName, String attributeName, int length){
         try{
             PreparedStatement stmt = _connection.prepareStatement(
                     "insert into attribute values (?, ?, ?)"
@@ -80,14 +122,12 @@ public class JdbcConnection {
             stmt.execute();
             stmt.close();
             System.out.println("Insert successful!");
-            return true;
         } catch (SQLException e){
             e.printStackTrace();
             if (e.getClass().getCanonicalName()
                     .equals("java.sql.SQLIntegrityConstraintViolationException")){
                 System.out.println("duplicate primary keys");
             }
-            return false;
         }
     }
 
