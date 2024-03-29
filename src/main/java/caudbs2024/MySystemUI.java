@@ -23,13 +23,13 @@ public class MySystemUI {
         System.out.print("attribute number: ");
         attributeNum = Integer.parseInt(sc.nextLine());
 
-        if (relationName.length() > 20){
-            System.err.println("max relation name length is 20");
+        if (relationName.length() > 16){
+            System.err.println("max relation name length is 16");
             return null;
         } else if (conn.checkDuplicate(relationName)){
             System.err.println("duplicate relation Name");
             return null;
-        } else if (attributeNum < 0 || attributeNum > 4){
+        } else if (attributeNum < 1 || attributeNum > 4){
             System.err.println("max attribute number is 4");
             return null;
         }
@@ -76,5 +76,7 @@ public class MySystemUI {
             System.out.println(x.length);
             System.out.println("----");
         }
+        MyFileIOSystem fileIo = new MyFileIOSystem();
+        fileIo.createDBFile("clothes", attributeArr);
     }
 }
