@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class MyFileIOSystem {
@@ -76,12 +77,23 @@ public class MyFileIOSystem {
 
     public void readDBFile(String relationName, Attribute[] attributes){
         final int attribute_num = attributes.length;
+        byte[] block = new byte[BLOCK_SIZE];
 
-        try (FileInputStream fis = new FileInputStream(relationName + "txt")){
-
+        try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
+            StringBuilder res = new StringBuilder();
+            while (fis.available() > 0){
+                fis.read(block);
+                byte[] first = Arrays.copyOfRange(block, 0, RECORD_SIZE);
+                byte[] second = Arrays.copyOfRange(block, RECORD_SIZE, 2 * RECORD_SIZE);
+                byte[] third = Arrays.copyOfRange(block, 2 * RECORD_SIZE, 3 * RECORD_SIZE);
+                res.append(new String(first));
+                res.append(new String(second));
+                res.append(new String(third));
+            }
+            System.out.println(res.substring(0, 100).length());
+            System.out.println(res.substring(100, 200).length());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }
