@@ -77,6 +77,7 @@ public class MySystemUI {
             System.out.println("----");
         }
         MyFileIOSystem fileIo = new MyFileIOSystem();
-        fileIo.createDBFile("clothes", attributeArr);
+//        fileIo.createDBFile("clothes", attributeArr);
+        fileIo.readDBFile("clothes", attributeArr);
     }
 }
