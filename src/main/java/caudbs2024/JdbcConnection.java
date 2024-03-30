@@ -2,6 +2,7 @@ package caudbs2024;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import static java.lang.System.getenv;
@@ -11,7 +12,7 @@ public class JdbcConnection {
     final private String _dbPwd;
     final private String _url;
     private Connection _connection;
-    private final ArrayList<String> _tableNameArr;
+    private final HashSet<String> _tableNameArr;
 
     JdbcConnection(){
         Map<String, String> env = getenv();
@@ -19,7 +20,7 @@ public class JdbcConnection {
         _dbUser = env.get("DB_USER");
         _dbPwd = env.get("DB_PWD");
         _url = String.format("jdbc:mysql://%s:3306/test", dbHost);
-        _tableNameArr = new ArrayList<>(10);
+        _tableNameArr = new HashSet<>();
     }
 
     public boolean getJDBCConnection(){
@@ -133,7 +134,7 @@ public class JdbcConnection {
     public boolean checkDuplicate(String relationName){
         return _tableNameArr.contains(relationName);
     }
-    public ArrayList<String> getRelationNameArr(){
+    public HashSet<String> getRelationNameArr(){
         return this._tableNameArr;
     }
 }

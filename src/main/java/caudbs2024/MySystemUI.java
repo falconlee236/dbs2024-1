@@ -1,6 +1,7 @@
 package caudbs2024;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class MySystemUI {
@@ -70,24 +71,29 @@ public class MySystemUI {
             System.err.println("duplicate primary keys");
             System.exit(1);
         }
-        fileIo.createDBFile("clothes", attributes);
+        fileIo.createDBFile(relationName, attributes);
         System.out.println("create successful!");
     }
 
     public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo){
-        ArrayList<String> curRelationList = conn.getRelationNameArr();
+        HashSet<String> curRelationList = conn.getRelationNameArr();
         Scanner sc = new Scanner(System.in);
+        int i = 0;
         if (curRelationList.isEmpty()){
             System.out.println("No relation table in system");
             return;
         }
         System.out.println("select the relation table");
-        for(int i = 0; i < curRelationList.size(); i++){
-            System.out.printf("%d - %s\n", i, curRelationList.get(i));
+        for(String str : curRelationList){
+            System.out.printf("%d - %s\n", i, str);
+            i++;
         }
-        System.out.print("input relation idx: ");
-        String relationIdx = sc.nextLine();
-        String relationName = curRelationList.get(Integer.parseInt(relationIdx));
+        System.out.print("input relation name: ");
+        String relationName = sc.nextLine();
+        if (!curRelationList.contains(relationName)){
+            System.err.println("this Name doesn't contain Table List");
+            return;
+        }
         Attribute[] attributes = conn.getJDBCAttribute(relationName);
         if (attributes == null){
             System.err.println("duplicate primary keys");

@@ -1,6 +1,7 @@
 package caudbs2024;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ public class MyFileIOSystem {
         Scanner sc = new Scanner(System.in);
         final int attribute_num = attributes.length;
         byte[] block = new byte[BLOCK_SIZE];
-
         /*
          id = 16byte (0~15),
          first = 16~31
@@ -29,7 +29,7 @@ public class MyFileIOSystem {
          80, 81, 82, 83 byte는 다음 free node idx, 99byte는 개행
          */
         try(FileOutputStream fos = new FileOutputStream(relationName + ".txt")){
-            for(int k = 0; k < INIT_RECORDS + 1; k++){
+            for(int k = 0; k < 1; k++){
                 byte[] buffer = new byte[RECORD_SIZE];
                 if (k == 0){
                     byte[] nextNode = Integer.toString(INIT_RECORDS + 1).getBytes();
