@@ -153,6 +153,27 @@ public class MySystemUI {
     }
 
     public void insertDB(JdbcConnection conn, MyFileIOSystem fileIo){
-
+        Scanner sc = new Scanner(System.in);
+        String relationName = getUserInputRelationName(conn);
+        if (relationName == null){
+            return;
+        }
+        ArrayList<String> record = new ArrayList<>();
+        Attribute[] attributes = conn.getJDBCAttribute(relationName);
+        if (attributes == null){
+            System.err.println("duplicate primary keys");
+            System.exit(1);
+        }
+        for(Attribute node : attributes){
+            String inputStr;
+            while (true){
+                System.out.printf("input %s : ", node.attribute_name);
+                inputStr = sc.nextLine();
+                if (inputStr.length() <= node.length) break;
+                System.out.println("Length overflow, Please re input");
+            }
+            record.add(inputStr);
+        }
+        fileIo.insertDBFileRecord(relationName, attributes, record);
     }
 }

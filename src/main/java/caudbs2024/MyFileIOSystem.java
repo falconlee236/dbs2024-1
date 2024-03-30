@@ -119,4 +119,8 @@ public class MyFileIOSystem {
         }
         return null;
     }
+
+    public void insertDBFileRecord(String relationName, Attribute[] attributes, ArrayList<String> record){
+
+    }
 }
