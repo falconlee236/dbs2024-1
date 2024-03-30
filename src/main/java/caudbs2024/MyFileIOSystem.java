@@ -32,7 +32,7 @@ public class MyFileIOSystem {
                 byte[] buffer = new byte[RECORD_SIZE];
                 if (k == 0){
                     byte[] nextNode = Integer.toString(INIT_RECORDS + 1).getBytes();
-                    System.arraycopy(nextNode, 0, buffer, 80, nextNode.length);
+                    System.arraycopy(nextNode, 0, buffer, NEXT_NODE_IDX, nextNode.length);
                     buffer[LAST_IDX] = '\n';
                 } else {
                     System.out.printf("%d - record\n", k);
