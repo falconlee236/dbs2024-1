@@ -75,7 +75,7 @@ public class MySystemUI {
         System.out.println("create successful!");
     }
 
-    public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo){
+    public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo, boolean isRecordOne){
         HashSet<String> curRelationList = conn.getRelationNameArr();
         Scanner sc = new Scanner(System.in);
         int i = 0;
@@ -99,12 +99,23 @@ public class MySystemUI {
             System.err.println("duplicate primary keys");
             System.exit(1);
         }
-        ArrayList<ArrayList<String>> table = fileIo.readDBFile(relationName, attributes);
-        printDBTable(attributes, table);
+        if (!isRecordOne){
+            ArrayList<ArrayList<String>> table = fileIo.readDBFile(relationName, attributes);
+            printDBTable(attributes, table);
+        } else {
+            System.out.print("input record id: ");
+            String id = sc.nextLine();
+            ArrayList<String> record = fileIo.readDBFileOne(relationName, attributes, id);
+            if (record == null){
+              System.out.println("No such ID records");
+              return;
+            }
+            printDBRecord(attributes, record);
+        }
     }
 
     private void printDBTable(Attribute[] attributes, ArrayList<ArrayList<String>> table){
-        System.out.println("<result table>");
+        System.out.println("\n<result table>\n");
         System.out.printf("|%-16s", "id");
         for(Attribute node : attributes){
             System.out.printf("|%-16s", node.attribute_name);
@@ -120,4 +131,18 @@ public class MySystemUI {
             System.out.println("|");
         }
     }
+
+    private void printDBRecord(Attribute[] attributes, ArrayList<String> record){
+        System.out.println("\n<result record>\n");
+        System.out.printf("|%-16s", "id");
+        for(Attribute node : attributes){
+            System.out.printf("|%-16s", node.attribute_name);
+        }
+        System.out.println("|");
+        for(int i = 0; i < record.size() - 1; i++){
+            System.out.printf("|%-16s", record.get(i));
+        }
+        System.out.println("|");
+    }
+
 }

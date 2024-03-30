@@ -1,7 +1,6 @@
 package caudbs2024;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,5 +99,24 @@ public class MyFileIOSystem {
                 .trim();
         recordArr.add(nextIdx);
         return recordArr;
+    }
+
+    public ArrayList<String> readDBFileOne(String relationName, Attribute[] attributes, String id){
+        final int attribute_num = attributes.length;
+        byte[] block = new byte[BLOCK_SIZE];
+
+        try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
+            while (fis.read(block) > 0){
+                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                    ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                    if (id.equals(recordArr.get(0))){
+                        return recordArr;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 }

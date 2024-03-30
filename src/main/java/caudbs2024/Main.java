@@ -24,10 +24,11 @@ public class Main {
                     break;
                 case "4":
                     System.out.println("4. DB Select all...");
-                    systemUI.searchDB(myConn, fileIo);
+                    systemUI.searchDB(myConn, fileIo, false);
                     break;
                 case "5":
                     System.out.println("5. DB Select one...");
+                    systemUI.searchDB(myConn, fileIo, true);
                     break;
                 case "6":
                     break label;
