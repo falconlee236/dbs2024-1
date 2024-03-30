@@ -176,4 +176,20 @@ public class MySystemUI {
         }
         fileIo.insertDBFileRecord(relationName, attributes, record);
     }
+
+    public void deleteDB(JdbcConnection conn, MyFileIOSystem fileIo){
+        Scanner sc = new Scanner(System.in);
+        String relationName = getUserInputRelationName(conn);
+        if (relationName == null){
+            return;
+        }
+        System.out.print("input delete ID: ");
+        String id = sc.nextLine();
+        Attribute[] attributes = conn.getJDBCAttribute(relationName);
+        if (attributes == null){
+            System.err.println("duplicate primary keys");
+            System.exit(1);
+        }
+        fileIo.deleteDBFileRecord(relationName, attributes, id);
+    }
 }

@@ -171,4 +171,22 @@ public class MyFileIOSystem {
             throw new RuntimeException(ex);
         }
     }
+
+    public void deleteDBFileRecord(String relationName, Attribute[] attributes, String id){
+        final int attribute_num = attributes.length;
+        byte[] block = new byte[BLOCK_SIZE];
+
+        try (RandomAccessFile raf = new RandomAccessFile(relationName + ".txt", "rw")){
+            while (raf.read(block) > 0){
+                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                    ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                    if (id.equals(recordArr.get(0))){
+
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

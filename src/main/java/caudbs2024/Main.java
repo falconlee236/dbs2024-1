@@ -23,8 +23,12 @@ public class Main {
                     systemUI.createDB(myConn, fileIo);
                     break;
                 case "2":
-                    System.out.println("Start Insert DB....");
+                    System.out.println("Start Insert DB record....");
                     systemUI.insertDB(myConn, fileIo);
+                    break;
+                case "3":
+                    System.out.println("Start Delete DB record....");
+                    systemUI.deleteDB(myConn, fileIo);
                     break;
                 case "4":
                     System.out.println("Start Select DB all....");
