@@ -76,22 +76,9 @@ public class MySystemUI {
     }
 
     public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo, boolean isRecordOne){
-        HashSet<String> curRelationList = conn.getRelationNameArr();
         Scanner sc = new Scanner(System.in);
-        int i = 0;
-        if (curRelationList.isEmpty()){
-            System.out.println("No relation table in system");
-            return;
-        }
-        System.out.println("select the relation table");
-        for(String str : curRelationList){
-            System.out.printf("%d - %s\n", i, str);
-            i++;
-        }
-        System.out.print("input relation name: ");
-        String relationName = sc.nextLine();
-        if (!curRelationList.contains(relationName)){
-            System.err.println("this Name doesn't contain Table List");
+        String relationName = getUserInputRelationName(conn);
+        if (relationName == null){
             return;
         }
         Attribute[] attributes = conn.getJDBCAttribute(relationName);
@@ -143,6 +130,26 @@ public class MySystemUI {
             System.out.printf("|%-16s", record.get(i));
         }
         System.out.println("|");
+    }
+
+    private String getUserInputRelationName(JdbcConnection conn){
+        HashSet<String> curRelationList = conn.getRelationNameArr();
+        Scanner sc = new Scanner(System.in);
+        if (curRelationList.isEmpty()){
+            System.out.println("No relation table in system");
+            return null;
+        }
+        System.out.println("select the relation table");
+        for(String str : curRelationList){
+            System.out.printf("----%s-----\n", str);
+        }
+        System.out.print("input relation name: ");
+        String relationName = sc.nextLine();
+        if (!curRelationList.contains(relationName)){
+            System.err.println("this Name doesn't contain Table List");
+            return null;
+        }
+        return relationName;
     }
 
     public void insertDB(JdbcConnection conn, MyFileIOSystem fileIo){
