@@ -1,7 +1,6 @@
 package caudbs2024;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,13 +29,10 @@ public class MyFileIOSystem {
          */
         try(FileOutputStream fos = new FileOutputStream(relationName + ".txt")){
             for(int k = 0; k < INIT_RECORDS + 1; k++){
-//            for(int k = 0; k < 2; k++){
                 byte[] buffer = new byte[RECORD_SIZE];
                 if (k == 0){
                     byte[] nextNode = Integer.toString(INIT_RECORDS + 1).getBytes();
-                    for(int i = 0; i < nextNode.length; i++){
-                        buffer[NEXT_NODE_IDX + i] = nextNode[i];
-                    }
+                    System.arraycopy(nextNode, 0, buffer, 80, nextNode.length);
                     buffer[LAST_IDX] = '\n';
                 } else {
                     System.out.printf("%d - record\n", k);
@@ -44,9 +40,7 @@ public class MyFileIOSystem {
                         Attribute node = attributes[i - 1];
                         String inputStr;
                         byte[] idxStr = Integer.toString(k  + 1000).getBytes();
-                        for(int j = 0; j < idxStr.length; j++){
-                            buffer[j] = idxStr[j];
-                        }
+                        System.arraycopy(idxStr, 0, buffer, 0, idxStr.length);
                         while (true){
                             System.out.printf("input %s: ", node.attribute_name);
                             inputStr = sc.nextLine();
@@ -55,15 +49,11 @@ public class MyFileIOSystem {
                         }
 
                         byte[] tmpArr = inputStr.getBytes();
-                        for(int j = 0; j < inputStr.length(); j++){
-                            buffer[i * COLUMN_SIZE + j] = tmpArr[j];
-                        }
+                        System.arraycopy(tmpArr, 0, buffer, i * COLUMN_SIZE, inputStr.length());
                     }
                     buffer[LAST_IDX] = '\n';
                 }
-                for(int i = 0; i < RECORD_SIZE; i++){
-                    block[(k % 3) * RECORD_SIZE + i] = buffer[i];
-                }
+                System.arraycopy(buffer, 0, block, (k % 3) * RECORD_SIZE, RECORD_SIZE);
                 if (k % 3 == 2) {
                     fos.write(block);
                     block = new byte[BLOCK_SIZE];
