@@ -1,8 +1,6 @@
 package caudbs2024;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -120,7 +118,56 @@ public class MyFileIOSystem {
         return null;
     }
 
-    public void insertDBFileRecord(String relationName, Attribute[] attributes, ArrayList<String> record){
+    public void insertDBFileRecord(String relationName, Attribute[] attributes, ArrayList<String> record) {
+        final int attribute_num = attributes.length;
+        byte[] block = new byte[BLOCK_SIZE];
 
+        try (RandomAccessFile raf = new RandomAccessFile(relationName + ".txt", "rw")) {
+            while (raf.read(block) > 0) {
+                for (int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++) {
+                    ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                    if (recordArr.get(0).isEmpty() && !recordArr.get(attribute_num + 1).isEmpty()) {
+                        int insertPos = Integer.parseInt(recordArr.get(attribute_num + 1));
+                        byte[] blockBuffer = new byte[300];
+                        byte[] insertPosBytes = Integer.toString(insertPos + 1000).getBytes();
+                        System.arraycopy(insertPosBytes, 0, blockBuffer, 0, insertPosBytes.length);
+                        for (int j = 0; j < record.size(); j++) {
+                            byte[] strBytes = record.get(j).getBytes();
+                            System.arraycopy(strBytes, 0, blockBuffer,
+                                    (j + 1) * COLUMN_SIZE, strBytes.length);
+                        }
+
+                        byte[] tmpBlockBuffer = new byte[300];
+                        raf.seek((long) insertPos * RECORD_SIZE);
+                        raf.read(tmpBlockBuffer);
+                        System.arraycopy(tmpBlockBuffer, RECORD_SIZE,
+                                blockBuffer, RECORD_SIZE, BLOCK_SIZE - RECORD_SIZE);
+                        blockBuffer[LAST_IDX] = '\n';
+                        blockBuffer[RECORD_SIZE + LAST_IDX] = '\n';
+                        blockBuffer[2 * RECORD_SIZE + LAST_IDX] = '\n';
+                        raf.seek((long) insertPos * RECORD_SIZE);
+                        raf.write(blockBuffer);
+
+                        if (tmpBlockBuffer[NEXT_NODE_IDX] != 0){
+                            System.arraycopy(tmpBlockBuffer, NEXT_NODE_IDX,
+                                    block, NEXT_NODE_IDX, RECORD_SIZE - NEXT_NODE_IDX);
+                        } else {
+                            byte[] tmpBuffer = new byte[4];
+                            byte[] nextPos = Integer.toString(insertPos + 1).getBytes();
+                            System.arraycopy(nextPos, 0,
+                                    tmpBuffer, 0, nextPos.length);
+                            System.arraycopy(tmpBuffer, 0,
+                                    block, NEXT_NODE_IDX, tmpBuffer.length);
+                        }
+                        raf.seek(0);
+                        raf.write(block);
+                        System.out.println("Insert Successful!");
+                        return;
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

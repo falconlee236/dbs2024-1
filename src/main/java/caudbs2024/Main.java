@@ -25,6 +25,7 @@ public class Main {
                 case "2":
                     System.out.println("Start Insert DB....");
                     systemUI.insertDB(myConn, fileIo);
+                    break;
                 case "4":
                     System.out.println("Start Select DB all....");
                     systemUI.searchDB(myConn, fileIo, false);
