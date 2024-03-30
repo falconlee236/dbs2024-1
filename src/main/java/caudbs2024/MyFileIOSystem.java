@@ -73,6 +73,7 @@ public class MyFileIOSystem {
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     res.add(recordArr);
                 }
+                Arrays.fill(block, (byte)0);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
