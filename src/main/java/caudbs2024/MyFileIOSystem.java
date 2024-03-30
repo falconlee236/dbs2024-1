@@ -3,6 +3,7 @@ package caudbs2024;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -65,25 +66,40 @@ public class MyFileIOSystem {
         }
     }
 
-    public void readDBFile(String relationName, Attribute[] attributes){
+    public ArrayList<ArrayList<String>> readDBFile(String relationName, Attribute[] attributes){
         final int attribute_num = attributes.length;
         byte[] block = new byte[BLOCK_SIZE];
+        ArrayList<ArrayList<String>> res = new ArrayList<>();
 
         try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
-            StringBuilder res = new StringBuilder();
-            while (fis.available() > 0){
-                fis.read(block);
-                byte[] first = Arrays.copyOfRange(block, 0, RECORD_SIZE);
-                byte[] second = Arrays.copyOfRange(block, RECORD_SIZE, 2 * RECORD_SIZE);
-                byte[] third = Arrays.copyOfRange(block, 2 * RECORD_SIZE, 3 * RECORD_SIZE);
-                res.append(new String(first));
-                res.append(new String(second));
-                res.append(new String(third));
+            for (int k = 0; fis.read(block) > 0; k++){
+                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                    ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                    res.add(recordArr);
+                }
             }
-            System.out.println(res.substring(0, 100).length());
-            System.out.println(res.substring(100, 200).length());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return res;
+    }
+
+    private ArrayList<String> getRecordArr(byte[] block, int i, int attribute_num) {
+        ArrayList<String> recordArr = new ArrayList<>();
+        byte[] recordBytes = Arrays.copyOfRange(
+                block, i * (RECORD_SIZE), (i + 1) * RECORD_SIZE);
+        for(int j = 0; j < attribute_num + 1; j++){
+            String str = new String(
+                    Arrays.copyOfRange(recordBytes, j * (COLUMN_SIZE), (j + 1) * COLUMN_SIZE))
+                    .replace((char)0, ' ')
+                    .trim();
+            recordArr.add(str);
+        }
+        String nextIdx = new String(
+                Arrays.copyOfRange(recordBytes, NEXT_NODE_IDX, NEXT_NODE_IDX + 4))
+                .replace((char)0, ' ')
+                .trim();
+        recordArr.add(nextIdx);
+        return recordArr;
     }
 }

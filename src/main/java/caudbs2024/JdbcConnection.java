@@ -136,4 +136,7 @@ public class JdbcConnection {
     public boolean checkDuplicate(String relationName){
         return _tableNameArr.contains(relationName);
     }
+    public ArrayList<String> getRelationNameArr(){
+        return this._tableNameArr;
+    }
 }

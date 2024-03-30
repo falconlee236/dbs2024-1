@@ -1,5 +1,7 @@
 package caudbs2024;
 
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class MySystemUI {
@@ -61,23 +63,55 @@ public class MySystemUI {
         }
     }
 
-    public void createDB(JdbcConnection conn){
+    public void createDB(JdbcConnection conn, MyFileIOSystem fileIo){
         System.out.println("<Create table>");
-//        String relationName = setMetaData(conn);
-//        Attribute[] attributeArr = conn.getJDBCAttribute(relationName);
-        Attribute[] attributeArr = conn.getJDBCAttribute("clothes");
-        if (attributeArr == null){
+        String relationName = setMetaData(conn);
+        Attribute[] attributes = conn.getJDBCAttribute(relationName);
+        if (attributes == null){
             System.err.println("duplicate primary keys");
             System.exit(1);
         }
-        for(Attribute x : attributeArr){
-            System.out.println(x.relation_name);
-            System.out.println(x.attribute_name);
-            System.out.println(x.length);
-            System.out.println("----");
+        fileIo.createDBFile("clothes", attributes);
+    }
+
+    public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo){
+        ArrayList<String> curRelationList = conn.getRelationNameArr();
+        Scanner sc = new Scanner(System.in);
+        if (curRelationList == null){
+            System.out.println("No relation table in system");
+            return;
         }
-        MyFileIOSystem fileIo = new MyFileIOSystem();
-//        fileIo.createDBFile("clothes", attributeArr);
-        fileIo.readDBFile("clothes", attributeArr);
+        System.out.println("select the relation table");
+        for(int i = 0; i < curRelationList.size(); i++){
+            System.out.printf("%d - %s\n", i, curRelationList.get(i));
+        }
+        System.out.print("input relation idx: ");
+        String relationIdx = sc.nextLine();
+        String relationName = curRelationList.get(Integer.parseInt(relationIdx));
+        Attribute[] attributes = conn.getJDBCAttribute(relationName);
+        if (attributes == null){
+            System.err.println("duplicate primary keys");
+            System.exit(1);
+        }
+        ArrayList<ArrayList<String>> table = fileIo.readDBFile(relationName, attributes);
+        printDBTable(attributes, table);
+    }
+
+    private void printDBTable(Attribute[] attributes, ArrayList<ArrayList<String>> table){
+        System.out.println("<result table>");
+        System.out.printf("|%-16s", "id");
+        for(Attribute node : attributes){
+            System.out.printf("|%-16s", node.attribute_name);
+        }
+        System.out.println("|");
+        for(ArrayList<String> node : table){
+            if (node.get(0).isEmpty()){
+                continue;
+            }
+            for(int i = 0; i < node.size() - 1; i++){
+                System.out.printf("|%-16s", node.get(i));
+            }
+            System.out.println("|");
+        }
     }
 }
