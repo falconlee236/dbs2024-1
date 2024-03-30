@@ -145,4 +145,7 @@ public class MySystemUI {
         System.out.println("|");
     }
 
+    public void insertDB(JdbcConnection conn, MyFileIOSystem fileIo){
+
+    }
 }

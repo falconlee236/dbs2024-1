@@ -22,12 +22,15 @@ public class Main {
                     System.out.println("Start Create DB....");
                     systemUI.createDB(myConn, fileIo);
                     break;
+                case "2":
+                    System.out.println("Start Insert DB....");
+                    systemUI.insertDB(myConn, fileIo);
                 case "4":
-                    System.out.println("4. DB Select all...");
+                    System.out.println("Start Select DB all....");
                     systemUI.searchDB(myConn, fileIo, false);
                     break;
                 case "5":
-                    System.out.println("5. DB Select one...");
+                    System.out.println("Start Select DB one....");
                     systemUI.searchDB(myConn, fileIo, true);
                     break;
                 case "6":
