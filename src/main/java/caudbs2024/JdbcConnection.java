@@ -1,7 +1,5 @@
 package caudbs2024;
 
-import com.mysql.cj.protocol.Resultset;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,6 +33,21 @@ public class JdbcConnection {
         }
     }
 
+    private void storeRelationName(){
+        try{
+            ResultSet rst;
+            Statement stmt = _connection.createStatement();
+            rst = stmt.executeQuery("select * from relation");
+
+            while (rst.next()){
+                _tableNameArr.add(rst.getString(1));
+            }
+            stmt.close();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     private Relation getJDBCRelation(String relationName){
         try{
             PreparedStatement stmt = _connection.prepareStatement(
@@ -60,7 +73,7 @@ public class JdbcConnection {
             stmt.setInt(2, numAttribute);
             stmt.execute();
             stmt.close();
-            System.out.println("Insert successful!");
+            storeRelationName();
             return true;
         } catch (SQLException e){
             e.printStackTrace();
@@ -69,21 +82,6 @@ public class JdbcConnection {
                 System.err.println("duplicate primary keys");
             }
             return false;
-        }
-    }
-
-    private void storeRelationName(){
-        try{
-            ResultSet rst;
-            Statement stmt = _connection.createStatement();
-            rst = stmt.executeQuery("select * from relation");
-
-            for (int i = 0; rst.next(); i++){
-                _tableNameArr.add(rst.getString(1));
-            }
-            stmt.close();
-        } catch (SQLException e){
-            e.printStackTrace();
         }
     }
 
@@ -123,7 +121,6 @@ public class JdbcConnection {
             stmt.setInt(3, length);
             stmt.execute();
             stmt.close();
-            System.out.println("Insert successful!");
         } catch (SQLException e){
             e.printStackTrace();
             if (e.getClass().getCanonicalName()

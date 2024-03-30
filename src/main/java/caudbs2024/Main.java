@@ -12,20 +12,25 @@ public class Main {
             System.out.println("Cannot connect mySQL database, check DB server");
             return;
         }
+        label:
         while (true){
             systemUI.printMenu();
             Scanner sc = new Scanner(System.in);
             String typeStr = sc.nextLine();
-            if (typeStr.equals("1")){
-                System.out.println("Start Create DB....");
-                systemUI.createDB(myConn, fileIo);
-            } else if (typeStr.equals("4")){
-                System.out.println("4. DB Select all...");
-                systemUI.searchDB(myConn, fileIo);
-            } else if (typeStr.equals("5")) {
-                System.out.println("5. DB Select one...");
-            } else if (typeStr.equals("6")){
-                break;
+            switch (typeStr) {
+                case "1":
+                    System.out.println("Start Create DB....");
+                    systemUI.createDB(myConn, fileIo);
+                    break;
+                case "4":
+                    System.out.println("4. DB Select all...");
+                    systemUI.searchDB(myConn, fileIo);
+                    break;
+                case "5":
+                    System.out.println("5. DB Select one...");
+                    break;
+                case "6":
+                    break label;
             }
         }
     }

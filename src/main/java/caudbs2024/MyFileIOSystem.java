@@ -34,7 +34,6 @@ public class MyFileIOSystem {
                 if (k == 0){
                     byte[] nextNode = Integer.toString(INIT_RECORDS + 1).getBytes();
                     System.arraycopy(nextNode, 0, buffer, NEXT_NODE_IDX, nextNode.length);
-                    buffer[LAST_IDX] = '\n';
                 } else {
                     System.out.printf("%d - record\n", k);
                     for(int i = 1; i <= attribute_num; i++){
@@ -52,8 +51,8 @@ public class MyFileIOSystem {
                         byte[] tmpArr = inputStr.getBytes();
                         System.arraycopy(tmpArr, 0, buffer, i * COLUMN_SIZE, inputStr.length());
                     }
-                    buffer[LAST_IDX] = '\n';
                 }
+                buffer[LAST_IDX] = '\n';
                 System.arraycopy(buffer, 0, block, (k % 3) * RECORD_SIZE, RECORD_SIZE);
                 if (k % 3 == 2) {
                     fos.write(block);
@@ -72,7 +71,7 @@ public class MyFileIOSystem {
         ArrayList<ArrayList<String>> res = new ArrayList<>();
 
         try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
-            for (int k = 0; fis.read(block) > 0; k++){
+            while (fis.read(block) > 0){
                 for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     res.add(recordArr);

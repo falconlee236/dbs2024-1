@@ -1,7 +1,6 @@
 package caudbs2024;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class MySystemUI {
@@ -44,7 +43,7 @@ public class MySystemUI {
                 String idxStr = Integer.toString(i + 1);
                 System.out.print(idxStr + "- attribute name: ");
                 attributeNameArr[i] = sc.nextLine();
-                System.out.print(idxStr + "- attribute length");
+                System.out.print(idxStr + "- attribute length: ");
                 attributeLengthArr[i] = Integer.parseInt(sc.nextLine());
             }
             if (conn.insertJDBCRelation(relationName, attributeNum)){
@@ -72,12 +71,13 @@ public class MySystemUI {
             System.exit(1);
         }
         fileIo.createDBFile("clothes", attributes);
+        System.out.println("create successful!");
     }
 
     public void searchDB(JdbcConnection conn, MyFileIOSystem fileIo){
         ArrayList<String> curRelationList = conn.getRelationNameArr();
         Scanner sc = new Scanner(System.in);
-        if (curRelationList == null){
+        if (curRelationList.isEmpty()){
             System.out.println("No relation table in system");
             return;
         }
