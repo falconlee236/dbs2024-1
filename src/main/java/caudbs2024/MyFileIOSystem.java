@@ -9,6 +9,7 @@ public class MyFileIOSystem {
     final int COLUMN_SIZE = 16;
     final int BLOCK_SIZE = 300;
     final int RECORD_SIZE = 100;
+    final int BLOCK_FACTOR = BLOCK_SIZE / RECORD_SIZE;
     final int INIT_RECORDS = 10;
     final int NEXT_NODE_IDX = 80;
     final int LAST_IDX = RECORD_SIZE - 1;
@@ -69,7 +70,7 @@ public class MyFileIOSystem {
 
         try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
             while (fis.read(block) > 0){
-                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                for(int i = 0; i < BLOCK_FACTOR; i++){
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     res.add(recordArr);
                 }
@@ -106,7 +107,7 @@ public class MyFileIOSystem {
 
         try (FileInputStream fis = new FileInputStream(relationName + ".txt")){
             while (fis.read(block) > 0){
-                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                for(int i = 0; i < BLOCK_FACTOR; i++){
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     if (id.equals(recordArr.get(0))){
                         return recordArr;
@@ -125,12 +126,14 @@ public class MyFileIOSystem {
 
         try (RandomAccessFile raf = new RandomAccessFile(relationName + ".txt", "rw")) {
             while (raf.read(block) > 0) {
-                for (int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++) {
+                for (int i = 0; i < BLOCK_FACTOR; i++) {
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     //head 찾기, 반드시 insert는 head가 가리키는 곳에만 넣으면 된다.
                     if (recordArr.get(0).isEmpty() && !recordArr.get(attribute_num + 1).isEmpty()) {
                         // 삽입 index 찾기
                         int insertPos = Integer.parseInt(recordArr.get(attribute_num + 1));
+                        // 삽입 index가 있는 block으로 이동
+                        raf.seek(insertPos / BLOCK_FACTOR);
                         // 새로운 record만들기
                         byte[] blockBuffer = new byte[300];
                         byte[] insertPosBytes = Integer.toString(insertPos + 1000).getBytes();
@@ -183,10 +186,10 @@ public class MyFileIOSystem {
             // 1. 삭제 index 찾기
             int deleteIdx = -1;
             for (int k = 0; raf.read(block) > 0; k++){
-                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                for(int i = 0; i < BLOCK_FACTOR; i++){
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     if (id.equals(recordArr.get(0))){
-                        deleteIdx = k * (BLOCK_SIZE / RECORD_SIZE) + i;
+                        deleteIdx = k * BLOCK_FACTOR + i;
                         break;
                     }
                 }
@@ -198,11 +201,10 @@ public class MyFileIOSystem {
             }
             // 2. 해당 index 이전 빈 block 찾기
             Arrays.fill(block, (byte) 0);
-            int blockFactor = BLOCK_SIZE / RECORD_SIZE;
-            for(int k = (deleteIdx / blockFactor) * BLOCK_SIZE; k >= 0; k -= BLOCK_SIZE){
+            for(int k = (deleteIdx / BLOCK_FACTOR) * BLOCK_SIZE; k >= 0; k -= BLOCK_SIZE){
                 raf.seek(k);
                 raf.read(block);
-                for(int i = 0; i < BLOCK_SIZE / RECORD_SIZE; i++){
+                for(int i = 0; i < BLOCK_FACTOR; i++){
                     ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
                     if (!recordArr.get(attribute_num + 1).isEmpty()){
                         // 3. 이전 block이 가리키고 있는 index 저장
@@ -223,15 +225,15 @@ public class MyFileIOSystem {
                         Arrays.fill(buffer, (byte) 0);
 
                         // 5. 삭제 index에 이전 block이 가리키는 index 넣기
-                        raf.seek((long) (deleteIdx / blockFactor) * BLOCK_SIZE);
+                        raf.seek((long) (deleteIdx / BLOCK_FACTOR) * BLOCK_SIZE);
                         raf.read(block);
                         byte[] prevIdxStrBytes = Integer.toString(prevIdx).getBytes();
                         buffer[LAST_IDX] = '\n';
                         System.arraycopy(prevIdxStrBytes, 0,
                                 buffer, NEXT_NODE_IDX, prevIdxStrBytes.length);
                         System.arraycopy(buffer, 0,
-                                block, (deleteIdx % blockFactor) * RECORD_SIZE, buffer.length);
-                        raf.seek((long) (deleteIdx / blockFactor) * BLOCK_SIZE);
+                                block, (deleteIdx % BLOCK_FACTOR) * RECORD_SIZE, buffer.length);
+                        raf.seek((long) (deleteIdx / BLOCK_FACTOR) * BLOCK_SIZE);
                         raf.write(block);
                         System.out.println("delete Successful!");
                         return;
