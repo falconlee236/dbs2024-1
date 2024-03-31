@@ -132,33 +132,29 @@ public class MyFileIOSystem {
                     if (recordArr.get(0).isEmpty() && !recordArr.get(attribute_num + 1).isEmpty()) {
                         // 삽입 index 찾기
                         int insertPos = Integer.parseInt(recordArr.get(attribute_num + 1));
-                        // 삽입 index가 있는 block으로 이동
-                        raf.seek(insertPos / BLOCK_FACTOR);
+
                         // 새로운 record만들기
-                        byte[] blockBuffer = new byte[300];
+                        byte[] recordBuffer = new byte[100];
+                        recordBuffer[LAST_IDX] = '\n';
                         byte[] insertPosBytes = Integer.toString(insertPos + 1000).getBytes();
-                        System.arraycopy(insertPosBytes, 0, blockBuffer, 0, insertPosBytes.length);
+                        System.arraycopy(insertPosBytes, 0, recordBuffer, 0, insertPosBytes.length);
                         for (int j = 0; j < record.size(); j++) {
                             byte[] strBytes = record.get(j).getBytes();
-                            System.arraycopy(strBytes, 0, blockBuffer,
+                            System.arraycopy(strBytes, 0, recordBuffer,
                                     (j + 1) * COLUMN_SIZE, strBytes.length);
                         }
 
+                        // 삽입 index 위치 이동
+                        raf.seek((long) insertPos / BLOCK_FACTOR * BLOCK_SIZE);
                         byte[] tmpBlockBuffer = new byte[300];
-                        raf.seek((long) insertPos * RECORD_SIZE);
                         raf.read(tmpBlockBuffer);
-                        System.arraycopy(tmpBlockBuffer, RECORD_SIZE,
-                                blockBuffer, RECORD_SIZE, BLOCK_SIZE - RECORD_SIZE);
-                        blockBuffer[LAST_IDX] = '\n';
-                        blockBuffer[RECORD_SIZE + LAST_IDX] = '\n';
-                        blockBuffer[2 * RECORD_SIZE + LAST_IDX] = '\n';
-                        raf.seek((long) insertPos * RECORD_SIZE);
-                        raf.write(blockBuffer);
-
-                        if (tmpBlockBuffer[NEXT_NODE_IDX] != 0){
-                            System.arraycopy(tmpBlockBuffer, NEXT_NODE_IDX,
+                        // 해당 index 위치에 있는 다음 node를 정보 가져오기
+                        // 해당 node에 다음 node 정보가 있을 경우
+                        int insertIdx = (insertPos % BLOCK_FACTOR) * RECORD_SIZE;
+                        if (tmpBlockBuffer[insertIdx + NEXT_NODE_IDX] != 0){
+                            System.arraycopy(tmpBlockBuffer, insertIdx + NEXT_NODE_IDX,
                                     block, NEXT_NODE_IDX, RECORD_SIZE - NEXT_NODE_IDX);
-                        } else {
+                        } else { // 정보가 없을 경우
                             byte[] tmpBuffer = new byte[4];
                             byte[] nextPos = Integer.toString(insertPos + 1).getBytes();
                             System.arraycopy(nextPos, 0,
@@ -166,8 +162,21 @@ public class MyFileIOSystem {
                             System.arraycopy(tmpBuffer, 0,
                                     block, NEXT_NODE_IDX, tmpBuffer.length);
                         }
+                        // 갱신된 insert정보를 head에 쓰기
                         raf.seek(0);
                         raf.write(block);
+
+                        // 삽입 index 위치에 record 쓰기
+                        raf.seek((long) insertPos / BLOCK_FACTOR * BLOCK_SIZE);
+                        raf.read(tmpBlockBuffer);
+                        System.arraycopy(recordBuffer, 0,
+                                tmpBlockBuffer, insertIdx, recordBuffer.length);
+                        tmpBlockBuffer[LAST_IDX] = '\n';
+                        tmpBlockBuffer[RECORD_SIZE + LAST_IDX] = '\n';
+                        tmpBlockBuffer[2 * RECORD_SIZE + LAST_IDX] = '\n';
+                        raf.seek((long) insertPos / BLOCK_FACTOR * BLOCK_SIZE);
+                        raf.write(tmpBlockBuffer);
+
                         System.out.println("Insert Successful!");
                         return;
                     }
