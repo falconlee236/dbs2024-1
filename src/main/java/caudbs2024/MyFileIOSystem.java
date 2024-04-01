@@ -52,7 +52,7 @@ public class MyFileIOSystem {
                 }
                 buffer[LAST_IDX] = '\n';
                 System.arraycopy(buffer, 0, block, (k % 3) * RECORD_SIZE, RECORD_SIZE);
-                if (k % 3 == 2) {
+                if (k % BLOCK_FACTOR == BLOCK_FACTOR - 1) {
                     fos.write(block);
                     block = new byte[BLOCK_SIZE];
                 }
