@@ -39,6 +39,10 @@ public class Main {
                     systemUI.searchDB(myConn, fileIo, true);
                     break;
                 case "6":
+                    System.out.println("Start Join two DB....");
+                    systemUI.joinDB(myConn, fileIo);
+                    break;
+                case "7":
                     break label;
             }
         }

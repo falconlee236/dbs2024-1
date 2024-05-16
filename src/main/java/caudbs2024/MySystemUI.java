@@ -12,7 +12,8 @@ public class MySystemUI {
         System.out.println("3. DB Delete");
         System.out.println("4. DB Select all");
         System.out.println("5. DB Select one");
-        System.out.println("6. Exit");
+        System.out.println("6. DB Join");
+        System.out.println("7. Exit");
         System.out.print("Select the number: ");
     }
 
@@ -191,5 +192,18 @@ public class MySystemUI {
             System.exit(1);
         }
         fileIo.deleteDBFileRecord(relationName, attributes, id);
+    }
+
+    public void joinDB(JdbcConnection conn, MyFileIOSystem fileIo){
+        String relationName1 = getUserInputRelationName(conn);
+        String relationName2 = getUserInputRelationName(conn);
+        if (relationName1 == null || relationName2 == null){
+            System.out.println("Relation Name found failed.");
+            return;
+        }
+        if (relationName1.equals(relationName2)){
+            System.out.println("Relation Name is duplicate.");
+            return;
+        }
     }
 }
