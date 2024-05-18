@@ -253,4 +253,47 @@ public class MyFileIOSystem {
             throw new RuntimeException(e);
         }
     }
+
+    public void partitionDBFile(String relationName, int attribute_num){
+        byte[] block = new byte[BLOCK_SIZE];
+        byte[] writeBlock1 = new byte[BLOCK_SIZE];
+        byte[] writeBlock2 = new byte[BLOCK_SIZE];
+        int cnt1 = 0, cnt2 = 0;
+
+        try (FileInputStream fis = new FileInputStream(relationName + ".txt");
+             FileOutputStream fos1 = new FileOutputStream(relationName+"part1.txt");
+             FileOutputStream fos2 = new FileOutputStream(relationName+"part2.txt")
+        ){
+            while (fis.read(block) > 0){
+                for(int i = 0; i < BLOCK_FACTOR; i++){
+                    ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                    if (recordArr.get(0).isEmpty())
+                        continue;
+                    if (Integer.parseInt(recordArr.get(0)) % 2 == 0){
+                        System.arraycopy(block, i * RECORD_SIZE, writeBlock1, cnt1 * RECORD_SIZE, RECORD_SIZE);
+                        cnt1++;
+                        if (cnt1 == 3){
+                            fos1.write(writeBlock1);
+                            Arrays.fill(writeBlock1, (byte) 0);
+                            cnt1 = 0;
+                        }
+                    } else {
+                        System.arraycopy(block, i * RECORD_SIZE, writeBlock2, cnt2 * RECORD_SIZE, RECORD_SIZE);
+                        cnt2++;
+                        if (cnt2 == 3){
+                            fos2.write(writeBlock2);
+                            cnt2 = 0;
+                            Arrays.fill(writeBlock2, (byte) 0);
+                        }
+                    }
+                }
+            }
+            if (cnt1 != 0)
+                fos1.write(writeBlock1);
+            if (cnt2 != 0)
+                fos2.write(writeBlock2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

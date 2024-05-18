@@ -205,5 +205,13 @@ public class MySystemUI {
             System.out.println("Relation Name is duplicate.");
             return;
         }
+        Attribute[] attributes1 = conn.getJDBCAttribute(relationName1);
+        Attribute[] attributes2 = conn.getJDBCAttribute(relationName2);
+        if (attributes1 == null || attributes2 == null){
+            System.err.println("duplicate primary keys");
+            return;
+        }
+        fileIo.partitionDBFile(relationName1, attributes1.length);
+        fileIo.partitionDBFile(relationName2, attributes2.length);
     }
 }
