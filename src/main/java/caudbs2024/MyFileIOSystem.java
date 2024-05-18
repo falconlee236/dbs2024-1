@@ -261,8 +261,8 @@ public class MyFileIOSystem {
         int cnt1 = 0, cnt2 = 0;
 
         try (FileInputStream fis = new FileInputStream(relationName + ".txt");
-             FileOutputStream fos1 = new FileOutputStream(relationName+"part1.txt");
-             FileOutputStream fos2 = new FileOutputStream(relationName+"part2.txt")
+             FileOutputStream fos1 = new FileOutputStream(relationName+"-part1.txt");
+             FileOutputStream fos2 = new FileOutputStream(relationName+"-part2.txt")
         ){
             while (fis.read(block) > 0){
                 for(int i = 0; i < BLOCK_FACTOR; i++){
