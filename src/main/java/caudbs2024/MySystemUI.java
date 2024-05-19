@@ -214,7 +214,11 @@ public class MySystemUI {
         fileIo.partitionDBFile(relationName1, attributes1.length);
         fileIo.partitionDBFile(relationName2, attributes2.length);
         System.out.println("partition successful");
-        fileIo.hashJoinDB(relationName1, attributes1.length, relationName2, attributes2.length);
+        ArrayList<ArrayList<String>> resultTable = fileIo.hashJoinDB(relationName1, attributes1.length, relationName2, attributes2.length);
         System.out.println("hash Join successful");
+        Attribute[] resultAttributes = new Attribute[attributes1.length + attributes2.length];
+        System.arraycopy(attributes2, 0, resultAttributes, 0, attributes2.length);
+        System.arraycopy(attributes1, 0, resultAttributes, attributes2.length, attributes1.length);
+        printDBTable(resultAttributes, resultTable);
     }
 }

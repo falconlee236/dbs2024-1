@@ -296,8 +296,9 @@ public class MyFileIOSystem {
         }
     }
 
-    public void hashJoinDB(String relationName1, int attribute_num1, String relationName2, int attribute_num2){
+    public ArrayList<ArrayList<String>> hashJoinDB(String relationName1, int attribute_num1, String relationName2, int attribute_num2){
         byte[] probBlock = new byte[BLOCK_SIZE];
+        ArrayList<ArrayList<String>> resultTable = new ArrayList<>();
         for(int idx = 0; idx < 2; idx++){
             String curBuildFileName = String.format("%s-part%d.txt", relationName1, idx + 1);
             String curProbFileName = String.format("%s-part%d.txt", relationName2, idx + 1);
@@ -316,17 +317,8 @@ public class MyFileIOSystem {
                         for (ArrayList<String> list : indexEntry){
                             if (!Objects.equals(recordArr.get(0), list.get(0)))
                                 continue;
-                            for (String element : recordArr){
-                                if (element.isEmpty())
-                                    continue;
-                                System.out.print(element + " ");
-                            }
-                            for (int j = 1; j < list.size(); j++){
-                                if (list.get(j).isEmpty())
-                                    continue;
-                                System.out.print(list.get(j) + " ");
-                            }
-                            System.out.println();
+                            ArrayList<String> tmpList = getJoinRecord(list, recordArr);
+                            resultTable.add(tmpList);
                         }
                     }
                 }
@@ -334,6 +326,23 @@ public class MyFileIOSystem {
                 throw new RuntimeException(e);
             }
         }
+        return resultTable;
+    }
+
+    private static ArrayList<String> getJoinRecord(ArrayList<String> list, ArrayList<String> recordArr) {
+        ArrayList<String> tmpList = new ArrayList<>();
+        for (String element : recordArr){
+            if (element.isEmpty())
+                continue;
+            tmpList.add(element);
+        }
+        for (int j = 1; j < list.size(); j++){
+            if (list.get(j).isEmpty())
+                continue;
+            tmpList.add(list.get(j));
+        }
+        tmpList.add("");
+        return tmpList;
     }
 
     private HashMap<Integer, ArrayList<ArrayList<String>>> getHashIndex(FileInputStream fis, int attribute_num) throws IOException {
