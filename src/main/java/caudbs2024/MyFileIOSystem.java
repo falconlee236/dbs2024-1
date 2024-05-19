@@ -3,6 +3,7 @@ package caudbs2024;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class MyFileIOSystem {
@@ -260,9 +261,10 @@ public class MyFileIOSystem {
         byte[] writeBlock2 = new byte[BLOCK_SIZE];
         int cnt1 = 0, cnt2 = 0;
 
-        try (FileInputStream fis = new FileInputStream(relationName + ".txt");
-             FileOutputStream fos1 = new FileOutputStream(relationName+"-part1.txt");
-             FileOutputStream fos2 = new FileOutputStream(relationName+"-part2.txt")
+        try (
+                FileInputStream fis = new FileInputStream(relationName + ".txt");
+                FileOutputStream fos1 = new FileOutputStream(relationName+"-part1.txt");
+                FileOutputStream fos2 = new FileOutputStream(relationName+"-part2.txt")
         ){
             while (fis.read(block) > 0){
                 for(int i = 0; i < BLOCK_FACTOR; i++){
@@ -295,5 +297,47 @@ public class MyFileIOSystem {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void hashJoinDB(String relationName1, int attribute_num1, String relationName2, int attribute_num2){
+        for(int i = 0; i < 2; i++){
+            String curBuildFileName = String.format("%s-part%d.txt", relationName1, i + 1);
+            String curProbFileName = String.format("%s-part%d.txt", relationName2, i + 1);
+            try(
+                    FileInputStream buildFileIs = new FileInputStream(curBuildFileName);
+                    FileInputStream probFileIs = new FileInputStream(curProbFileName);
+                    FileOutputStream mergeFileOs = new FileOutputStream(relationName1 + "-" + relationName2 + "-merged.txt")
+            ) {
+                HashMap<Integer, ArrayList<ArrayList<String>>> index = getHashIndex(buildFileIs, attribute_num1);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private HashMap<Integer, ArrayList<ArrayList<String>>> getHashIndex(FileInputStream fis, int attribute_num) throws IOException {
+        HashMap<Integer, ArrayList<ArrayList<String>>> index = new HashMap<>(5);
+        byte[] block = new byte[BLOCK_SIZE];
+
+        @SuppressWarnings("unchecked")
+        ArrayList<ArrayList<String>>[] tmpList = new ArrayList[5];
+        for(int i = 0; i < tmpList.length; i++){
+            tmpList[i] = new ArrayList<>();
+        }
+
+        while (fis.read(block) > 0){
+            for(int i = 0; i < BLOCK_FACTOR; i++) {
+                ArrayList<String> recordArr = getRecordArr(block, i, attribute_num);
+                if (recordArr.get(0).isEmpty())
+                    continue;
+                int pos =  Integer.parseInt(recordArr.get(0));
+                tmpList[pos % 5].add(recordArr);
+            }
+        }
+        for(int i = 0; i < tmpList.length; i++){
+            index.put(i, tmpList[i]);
+        }
+        return index;
     }
 }
