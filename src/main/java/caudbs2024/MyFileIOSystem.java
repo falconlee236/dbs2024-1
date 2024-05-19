@@ -1,10 +1,7 @@
 package caudbs2024;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class MyFileIOSystem {
     final int COLUMN_SIZE = 16;
@@ -300,16 +297,39 @@ public class MyFileIOSystem {
     }
 
     public void hashJoinDB(String relationName1, int attribute_num1, String relationName2, int attribute_num2){
-        for(int i = 0; i < 2; i++){
-            String curBuildFileName = String.format("%s-part%d.txt", relationName1, i + 1);
-            String curProbFileName = String.format("%s-part%d.txt", relationName2, i + 1);
+        byte[] probBlock = new byte[BLOCK_SIZE];
+        for(int idx = 0; idx < 2; idx++){
+            String curBuildFileName = String.format("%s-part%d.txt", relationName1, idx + 1);
+            String curProbFileName = String.format("%s-part%d.txt", relationName2, idx + 1);
             try(
                     FileInputStream buildFileIs = new FileInputStream(curBuildFileName);
-                    FileInputStream probFileIs = new FileInputStream(curProbFileName);
-                    FileOutputStream mergeFileOs = new FileOutputStream(relationName1 + "-" + relationName2 + "-merged.txt")
+                    FileInputStream probFileIs = new FileInputStream(curProbFileName)
             ) {
-                HashMap<Integer, ArrayList<ArrayList<String>>> index = getHashIndex(buildFileIs, attribute_num1);
-
+                HashMap<Integer, ArrayList<ArrayList<String>>> buildIndex = getHashIndex(buildFileIs, attribute_num1);
+                while (probFileIs.read(probBlock) > 0){
+                    for(int i = 0; i < BLOCK_FACTOR; i++) {
+                        ArrayList<String> recordArr = getRecordArr(probBlock, i, attribute_num2);
+                        if (recordArr.get(0).isEmpty())
+                            continue;
+                        int probIdx = Integer.parseInt(recordArr.get(0)) % 5;
+                        ArrayList<ArrayList<String>> indexEntry = buildIndex.get(probIdx);
+                        for (ArrayList<String> list : indexEntry){
+                            if (!Objects.equals(recordArr.get(0), list.get(0)))
+                                continue;
+                            for (String element : recordArr){
+                                if (element.isEmpty())
+                                    continue;
+                                System.out.print(element + " ");
+                            }
+                            for (int j = 1; j < list.size(); j++){
+                                if (list.get(j).isEmpty())
+                                    continue;
+                                System.out.print(list.get(j) + " ");
+                            }
+                            System.out.println();
+                        }
+                    }
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
